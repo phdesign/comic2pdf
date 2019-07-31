@@ -1,0 +1,17 @@
+# OS
+.DS_Store
+
+# IDE
+.vscode
+
+# Python
+*.pyc
+*.egg-info
+*.egg
+.eggs
+.venv
+.pytest_cache
+__pycache__
+
+decks/
+crawls/
