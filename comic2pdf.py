@@ -49,7 +49,7 @@ def to_pdf(filename, tmpdirname):
     images[0].save(filename, "PDF", resolution=100.0, save_all=True, append_images=images[1:])
 
 
-def process_dir(directory):
+def process_dir(directory, outdir):
     print(f'processing directory "{directory}"...', file=sys.stdout)
     for filename in os.listdir(directory):
         print(f'processing file "{filename}"...', file=sys.stdout)
@@ -63,7 +63,7 @@ def process_dir(directory):
                 print(f'skipping "{filename}"', file=sys.stdout)
                 continue
             newfilename = filename.replace(filename[-4:], ".pdf")
-            newfilepath = os.path.join(directory, newfilename)
+            newfilepath = os.path.join(outdir, newfilename)
             to_pdf(newfilepath, tmpdirname)
             print(f'"{newfilename}" successfully converted!', file=sys.stdout)
 
@@ -71,13 +71,14 @@ def process_dir(directory):
 def parse_config():
     parser = argparse.ArgumentParser(description="Converts .cbr and .cbz files to .pdf", prog=PACKAGE_NAME)
     parser.add_argument("directory", help="directory to process")
+    parser.add_argument("-o", "--outdir", default=os.getcwd(), help="directory to place generated files")
     parser.add_argument("--version", action="version", version="%(prog)s v" + VERSION)
     return parser.parse_args()
 
 
 def main():
     config = parse_config()
-    process_dir(config.directory)
+    process_dir(config.directory, config.outdir)
 
 
 if __name__ == "__main__":
