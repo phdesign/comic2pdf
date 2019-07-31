@@ -10,63 +10,42 @@
 # License:  You can do what you want with it.
 # Mainly based on a script by Bransorem (https://github.com/bransorem/comic2pdf) 
 
-import os, sys, zipfile, patoolib
+import os
+import sys
+import zipfile
+import argparse
+import tempfile
+import patoolib
 from PIL import Image
 import PIL.ExifTags
+
 failed = False
 
-TMP_DIRNAME = ".tmp"
+PACKAGE_NAME = "comic2pdf"
+VERSION = "0.0.1"
 
-def nlog_info (msg, out=open("comic2pdf_log.txt","a")):
-    """Print info message to stdout (or any other given output)."""
-    print("patool:", msg, file=out)
+def extract_cbr(filename, tmpdirname):
+    patoolib.extract_archive(filename, outdir=tmpdirname)
 
-def olog_info (msg, out=sys.stdout):
-    """Print info message to stdout (or any other given output)."""
-    print("patool:", msg, file=out)
-
-def handlerar2(filein):
-    tmp_dir = os.path.join(os.getcwd(), TMP_DIRNAME)
-    os.mkdir(tmp_dir)
-    original = sys.stdout
-    sys.stdout = open("comic2pdf_log.txt","a")
-    patoolib.util.log_info = nlog_info
-    patoolib.extract_archive(filein, outdir=tmp_dir)
-    newfile = filein.replace(filein[-4:],".pdf")
-    toPDF2(newfile,tmp_dir,7)
-    cleanDir(tmp_dir)
-    print("------------------------------------------------------------")
+def extract_cbz(filename, tmpdirname):
+    zip_file = zipfile.ZipFile(filename, 'r')
+    zip_file.extractall(tmpdirname)
+    zip_file.close()
     
-    sys.stdout = original
-    print("\""+newfile[:-4]+"\" successfully converted!")
-
-def handlezip(filein):
-    zip_ref = zipfile.ZipFile(filein, 'r')
-    tmp_dir = os.path.join(os.getcwd(), TMP_DIRNAME)
-    zip_ref.extractall(tmp_dir)
-    zip_ref.close()
-    newfile = filein.replace(filein[-4:],".pdf")
-    toPDF2(newfile,tmp_dir,0)
-    try:
-        cleanDir(tmp_dir)
-    except:
-        aaa = 223
-    print("\""+newfile[:-4]+"\" successfully converted!")
-    
-def toPDF2(filename, newdir,ii):
-    ffiles = os.listdir(newdir)
-    if (len(ffiles) == 1):
-        toPDF2(filename, os.path.join(newdir, ffiles[0], ""), ii)
+def to_pdf(filename, tmpdirname):
+    filelist = os.listdir(tmpdirname)
+    if len(filelist) == 1:
+        to_pdf(filename, os.path.join(tmpdirname, filelist[0], ""))
     else:
         # imagelist is the list with all image filenames
         im_list = list()
         firstP = True
         im = None
-        for image in ffiles:
-            if (image.endswith(".jpg") or image.endswith(".JPG") or image.endswith(".jpeg") or image.endswith(".JPEG")):
-                im1 = Image.open(newdir+image)
+        for image in filelist:
+            if image.endswith(".jpg") or image.endswith(".JPG") or image.endswith(".jpeg") or image.endswith(".JPEG"):
+                im1 = Image.open(os.path.join(tmpdirname, image))
                 try:
-                    im1.save(newdir+image,dpi=(96,96))
+                    im1.save(os.path.join(tmpdirname, image), dpi=(96,96))
                 except:
                     aaaaa = 4
                 
@@ -77,31 +56,36 @@ def toPDF2(filename, newdir,ii):
             else: continue
         #print(exif)
         im.save(filename, "PDF" ,resolution=100.0, save_all=True, append_images=im_list)
-        cleanDir(newdir)
     #print("OK")
 
-def cleanDir(dir):
-    try:
-        files = os.listdir(dir)
-        for file in files:
-            os.remove(os.path.join(dir, file))
-        os.rmdir(dir)
-    except: print("No dir to clean!")
-
-def opendir(directory):
+def process_dir(directory):
     # look at all files in directory
-    #print(os.listdir(directory))
-    for file in os.listdir(directory):
-        # file extension cbr only
-        if (file[-4:] == '.cbz' or file[-4:] == '.zip'):
-            # change to zip
-            handlezip(file)
-        elif (file[-4:] == '.cbr' or file[-4:] == '.rar'):
-            # change to rar
-            handlerar2(file)
-    if failed:
-        print ("WARNING: some items were skipped")
+    print(f"processing directory \"{directory}\"...", file=sys.stdout)
+    for filename in os.listdir(directory):
+        print(f"processing file \"{filename}\"...", file=sys.stdout)
+        filepath = os.path.join(directory, filename)
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            if (filename[-4:] == '.cbz' or filename[-4:] == '.zip'):
+                extract_cbz(filepath, tmpdirname)
+            elif (filename[-4:] == '.cbr' or filename[-4:] == '.rar'):
+                extract_cbr(filepath, tmpdirname)
+            else:
+                print(f"skipping \"{filename}\"", file=sys.stdout)
+                continue
+            newfilename = filename.replace(filename[-4:],".pdf")
+            newfilepath = os.path.join(directory, newfilename)
+            to_pdf(newfilepath, tmpdirname)
+            print(f"\"{newfilename}\" successfully converted!", file=sys.stdout)
 
+def parse_config():
+    parser = argparse.ArgumentParser(description="Converts .cbr and .cbz files to .pdf", prog=PACKAGE_NAME)
+    parser.add_argument('directory', help="directory to process")
+    parser.add_argument('--version', action='version', version="%(prog)s v" + VERSION)
+    return parser.parse_args()
 
-#os.chdir(sys.argv[1])
-opendir(os.getcwd())
+def main():
+    config = parse_config()
+    process_dir(config.directory)
+
+if __name__ == "__main__":
+    main()
