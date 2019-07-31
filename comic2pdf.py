@@ -18,7 +18,6 @@ import argparse
 import tempfile
 import patoolib
 from PIL import Image
-import PIL.ExifTags
 
 PACKAGE_NAME = "comic2pdf"
 VERSION = "0.0.1"
@@ -34,37 +33,23 @@ def extract_cbz(filename, tmpdirname):
     zip_file.close()
 
 
-def to_pdf(filename, tmpdirname):
-    filelist = os.listdir(tmpdirname)
-    if len(filelist) == 1:
-        to_pdf(filename, os.path.join(tmpdirname, filelist[0], ""))
-    else:
-        # imagelist is the list with all image filenames
-        im_list = list()
-        firstP = True
-        im = None
-        for image in filelist:
-            if image.endswith(".jpg") or image.endswith(".JPG") or image.endswith(".jpeg") or image.endswith(".JPEG"):
-                im1 = Image.open(os.path.join(tmpdirname, image))
-                try:
-                    im1.save(os.path.join(tmpdirname, image), dpi=(96, 96))
-                except:
-                    aaaaa = 4
+def collect_images(path):
+    for item in os.listdir(path):
+        itempath = os.path.join(path, item)
+        if os.path.isdir(itempath):
+            yield from collect_images(itempath)
+        elif item.lower().endswith(".jpg") or item.lower().endswith(".jpeg"):
+            img = Image.open(itempath)
+            img.save(itempath, dpi=(96, 96))
+            yield img
 
-                if firstP:
-                    im = im1
-                    firstP = False
-                else:
-                    im_list.append(im1)
-            else:
-                continue
-        # print(exif)
-        im.save(filename, "PDF", resolution=100.0, save_all=True, append_images=im_list)
-    # print("OK")
+
+def to_pdf(filename, tmpdirname):
+    images = list(collect_images(tmpdirname))
+    images[0].save(filename, "PDF", resolution=100.0, save_all=True, append_images=images[1:])
 
 
 def process_dir(directory):
-    # look at all files in directory
     print(f'processing directory "{directory}"...', file=sys.stdout)
     for filename in os.listdir(directory):
         print(f'processing file "{filename}"...', file=sys.stdout)
