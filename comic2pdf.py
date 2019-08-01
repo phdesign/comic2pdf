@@ -1,14 +1,9 @@
 """Converts .cbr and .cbz files to .pdf.
+Only works with comicbook files that contain JPG's (for now).
 
-Use:  python comic2pdf.py
--- Only works with comicbook files that contain JPG's (for now).
--- The script should be in the same directory the file(s) to convert are in.
-
-Author:  MComas1
-Date:  14-09-18
-
-License:  You can do what you want with it.
-Mainly based on a script by Bransorem (https://github.com/bransorem/comic2pdf)
+Credit:
+    Based on script by MComas1 (https://github.com/MComas1/comics2pdf)
+    Which was based on a script by Bransorem (https://github.com/bransorem/comic2pdf)
 """
 
 import os
@@ -40,9 +35,10 @@ def extract_cbz(filename, tmpdirname):
 def collect_images(path):
     for item in os.listdir(path):
         itempath = os.path.join(path, item)
+        _, extn = os.path.splitext(item.lower())
         if os.path.isdir(itempath):
             yield from collect_images(itempath)
-        elif item.lower().endswith(".jpg") or item.lower().endswith(".jpeg"):
+        elif extn in (".jpg", ".jpeg"):
             img = Image.open(itempath)
             img.save(itempath, dpi=(96, 96))
             yield img
@@ -53,28 +49,9 @@ def to_pdf(filename, tmpdirname):
     images[0].save(filename, "PDF", resolution=100.0, save_all=True, append_images=images[1:])
 
 
-def process_dir(directory, outdir):
-    print(f'processing directory "{directory}"...', file=sys.stdout)
-    for filename in os.listdir(directory):
-        print(f'processing file "{filename}"...', file=sys.stdout)
-        filepath = os.path.join(directory, filename)
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            if filename[-4:] == ".cbz" or filename[-4:] == ".zip":
-                extract_cbz(filepath, tmpdirname)
-            elif filename[-4:] == ".cbr" or filename[-4:] == ".rar":
-                extract_cbr(filepath, tmpdirname)
-            else:
-                print(f'skipping "{filename}"', file=sys.stdout)
-                continue
-            newfilename = filename.replace(filename[-4:], ".pdf")
-            newfilepath = os.path.join(outdir, newfilename)
-            to_pdf(newfilepath, tmpdirname)
-            print(f'"{newfilename}" successfully converted!', file=sys.stdout)
-
-
 def parse_config():
     parser = argparse.ArgumentParser(description="Converts .cbr and .cbz files to .pdf", prog=PACKAGE_NAME)
-    parser.add_argument("directory", help="directory to process")
+    parser.add_argument("path", nargs="+", help="paths to process")
     parser.add_argument("-o", "--outdir", default=os.getcwd(), help="directory to place generated files")
     parser.add_argument("--version", action="version", version="%(prog)s v" + __version__)
     return parser.parse_args()
@@ -82,7 +59,22 @@ def parse_config():
 
 def main():
     config = parse_config()
-    process_dir(config.directory, config.outdir)
+    for filename in config.path:
+        print(f'processing file "{filename}"...', file=sys.stdout)
+        filepath = os.path.join(os.getcwd(), filename)
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            filename_noextn, extn = os.path.splitext(filename)
+            if extn in (".cbz", ".zip"):
+                extract_cbz(filepath, tmpdirname)
+            elif extn in (".cbr", ".rar"):
+                extract_cbr(filepath, tmpdirname)
+            else:
+                print(f'skipping "{filename}"', file=sys.stdout)
+                continue
+            newfilename = filename_noextn + ".pdf"
+            newfilepath = os.path.join(config.outdir, newfilename)
+            to_pdf(newfilepath, tmpdirname)
+            print(f'"{newfilename}" successfully converted!', file=sys.stdout)
 
 
 if __name__ == "__main__":

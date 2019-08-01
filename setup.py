@@ -11,7 +11,7 @@ $ python setup.py develop --uninstall   # uninstall for development
 $ python setup.py sdist                 # create package in /dist
 """
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 VERSION = "3.0"
 
@@ -22,13 +22,8 @@ setup(
     author="Paul Heasley",
     author_email="paul@phdesign.com.au",
     scripts=["comic2pdf.py"],
-    entry_points={
-        "console_scripts": ["comic2pdf=comic2pdf:main"]
-    },
+    entry_points={"console_scripts": ["comic2pdf=comic2pdf:main"]},
     license="WTFPL",
-    install_requires=[
-        "patool",
-        "pillow"
-    ],
+    install_requires=["patool", "pillow"],
     zip_safe=True,
 )
