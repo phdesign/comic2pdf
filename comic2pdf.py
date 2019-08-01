@@ -16,11 +16,15 @@ import sys
 import zipfile
 import argparse
 import tempfile
+import pkg_resources
 import patoolib
 from PIL import Image
 
 PACKAGE_NAME = "comic2pdf"
-VERSION = "0.0.1"
+try:
+    __version__ = pkg_resources.get_distribution("comic2pdf").version
+except pkg_resources.DistributionNotFound:
+    __version__ = "0.0.0"
 
 
 def extract_cbr(filename, tmpdirname):
@@ -72,7 +76,7 @@ def parse_config():
     parser = argparse.ArgumentParser(description="Converts .cbr and .cbz files to .pdf", prog=PACKAGE_NAME)
     parser.add_argument("directory", help="directory to process")
     parser.add_argument("-o", "--outdir", default=os.getcwd(), help="directory to place generated files")
-    parser.add_argument("--version", action="version", version="%(prog)s v" + VERSION)
+    parser.add_argument("--version", action="version", version="%(prog)s v" + __version__)
     return parser.parse_args()
 
 

@@ -13,5 +13,4 @@
 .pytest_cache
 __pycache__
 
-decks/
-crawls/
+dist/
