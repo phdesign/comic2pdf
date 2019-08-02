@@ -1,45 +1,105 @@
-# comics2pdf
-A script to convert comic files (cbr, cbz) to pdf, in python3. Works in Windows. Linux not tested.
+# comic2pdf
+A script to convert comic files (cbr, cbz) to pdf, in python3.
 
 ## Getting Started
 
-To use it, just place the .py script in the same directory the file(s) to convert are in and run the command:
+### Installing
+
+Install the package using [setuptools](https://github.com/pypa/setuptools).
 
 ```
-python comic2pdf.py
+$ python setup.py install
+```
+
+### Running
+
+The `comic2pdf` command should be globally available, pass as arguments the path(s) to the cbr / cbz files and optionally specify an output folder. The output files will be named the same as the input files but with a .pdf extension.
+
+```
+usage: comic2pdf [-h] [-o OUTDIR] [--version] path [path ...]
+
+Converts .cbr and .cbz files to .pdf
+
+positional arguments:
+  path                  paths to process
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o OUTDIR, --outdir OUTDIR
+                        directory to place generated files
+  --version             show program's version number and exit
+```
+
+e.g. to process all files in a folder (will ignore any file extensions except .cbr, .cbz, .rar or .zip).
+
+```
+$ comic2pdf *
 ```
 
 ### Prerequisites
 
-Script in Python 3.6 (probably won't work with Python 2.x versions). Requires the "zipfile", "patool" and "pillow"(aka PIL) modules in order to work correctly. To install them run the following commands:
+Requires Python 3.6+.
+
+Production dependencies are listed in `setup.py`. Development dependencies are listed in `requirements.txt`.
+
+### No install
+
+You can use the package without installing it, simply install dependencies and run the `comic2pdf.py` script. E.g.
 
 ```
-pip install zipfile
-```
-```
-pip install patool
-```
-```
-pip install pillow
-```
-In windows you'll need to run cmd.exe using the "run as administrator" option for those commands to work.
-
-### Installing
-
-Just place all the .cbr/.cbz files desired to convert to pdf in one directory, place the script in that same directory and run the following command:
-
-```
-python comic2pdf.py
+$ pip install -r requirements.txt
+$ python comic2pdf.py -o /dest/folder file.cbr
 ```
 
-It's a good idea to rename (before running the script) the .cbr/.cbz files that have names like "01.cbz" to "Comic Name 01.cbz", as the output .pdf will get its name from the input comic file.
+## Development
 
-## Built With
+### Installing 
 
-* [Python 3]
+Development is aided by a Makefile which uses a virtual environment. To setup the virtual environment and install dependencies:
+
+```
+$ make init
+```
+
+### Running
+
+To test changes to your script, you can install a development version which links to your source code:
+
+```
+$ python setup.py develop
+```
+
+And this can be uninstalled with 
+
+```
+$ python setup.py develop --uninstall
+```
+
+You may also run the script directly, but note that the dependencies are installed into the virtual environment. To enter the virtual environment:
+
+```
+# Windows
+$ source .venv/Scripts/activate
+# Mac
+$ source .venv/bin/activate
+```
+
+Then run the script directly.
+
+```
+(.venv) $ python comic2pdf.py -h
+```
+
+### Linting & formatting
+
+This project makes use of the [Black](https://github.com/psf/black) python code formatter which automatically reformats code. To run Black and lint the code, use:
+
+```
+$ make lint
+```
 
 ## Authors and Acknowledgments
 
-* **MComas1**
-
-Based on a python script by **bransorem** (https://github.com/bransorem/comic2pdf).
+* **phdesign**
+* **MComas1** (https://github.com/MComas1/comics2pdf)
+* **bransorem** (https://github.com/bransorem/comic2pdf)

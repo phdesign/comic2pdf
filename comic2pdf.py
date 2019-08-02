@@ -1,9 +1,5 @@
 """Converts .cbr and .cbz files to .pdf.
 Only works with comicbook files that contain JPG's (for now).
-
-Credit:
-    Based on script by MComas1 (https://github.com/MComas1/comics2pdf)
-    Which was based on a script by Bransorem (https://github.com/bransorem/comic2pdf)
 """
 
 import os
@@ -75,6 +71,7 @@ def main():
             newfilepath = os.path.join(config.outdir, newfilename)
             to_pdf(newfilepath, tmpdirname)
             print(f'"{newfilename}" successfully converted!', file=sys.stdout)
+    print(os.linesep + "we're all done!" + os.linesep, file=sys.stdout)
 
 
 if __name__ == "__main__":
