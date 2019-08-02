@@ -23,6 +23,7 @@ setup(
     version=VERSION,
     description="Converts .cbr and .cbz files to .pdf",
     long_description=readme,
+    long_description_content_type="text/markdown",
     author="Paul Heasley",
     author_email="paul@phdesign.com.au",
     url="http://www.phdesign.com.au/comic2pdf",
