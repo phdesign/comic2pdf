@@ -98,6 +98,14 @@ This project makes use of the [Black](https://github.com/psf/black) python code 
 $ make lint
 ```
 
+### Publishing
+
+1. Update `setup.py` with the new version number (e.g. 1.1.1)
+2. Create a new GitHub release (e.g. `git tag -a v1.1.1 -m "Version v1.1.1" && git push --tags`)
+3. Push to PyPI
+```
+$ make deploy
+```
 ## Authors and Acknowledgments
 
 * **phdesign**

@@ -26,9 +26,12 @@ lint:
 	black -l 120 $$PYFILES; \
 	pylint --exit-zero -f colorized $$PYFILES
 
+deploy:
+	$(PYTHON) setup.py sdist upload
+
 clean:
 	rm -rf .pytest_cache .venv
 	find . -iname "*.pyc" -delete
 	find . -type d -name "__pycache__" -delete
 
-.PHONY: init lint clean
+.PHONY: init lint deploy clean
