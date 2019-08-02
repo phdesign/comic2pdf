@@ -15,15 +15,22 @@ from setuptools import setup
 
 VERSION = "3.0"
 
+with open("README.md") as f:
+    readme = f.read()
+
 setup(
     name="comic2pdf",
     version=VERSION,
     description="Converts .cbr and .cbz files to .pdf",
+    long_description=readme,
     author="Paul Heasley",
     author_email="paul@phdesign.com.au",
+    url="http://www.phdesign.com.au/comic2pdf",
+    download_url=f"https://github.com/phdesign/comic2pdf/archive/v{VERSION}.tar.gz",
     scripts=["comic2pdf.py"],
     entry_points={"console_scripts": ["comic2pdf=comic2pdf:main"]},
     license="WTFPL",
+    keywords=["comic", "pdf", "cbr", "cbz", "convert"],
     install_requires=["patool", "pillow"],
     zip_safe=True,
 )

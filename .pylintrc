@@ -19,7 +19,8 @@ disable=missing-docstring,
 good-names=f,
            fn,
            ex,
-           i
+           i,
+           readme
 
 
 [REPORTS]
