@@ -27,6 +27,8 @@ optional arguments:
   -h, --help            show this help message and exit
   -o OUTDIR, --outdir OUTDIR
                         directory to place generated files
+  -a, --allow-overwrite
+                        allow overwriting existing files
   --version             show program's version number and exit
 ```
 
