@@ -26,11 +26,18 @@ lint:
 	black -l 120 $$PYFILES; \
 	pylint --exit-zero -f colorized $$PYFILES
 
-deploy:
-	$(PYTHON) setup.py sdist upload
+build: lint
+	rm -rf dist
+	$(PYTHON) setup.py sdist
+
+deploy: build
+	twine upload dist/*
+
+deploytest: build
+	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
 clean:
-	rm -rf .pytest_cache .venv
+	rm -rf .pytest_cache .venv dist
 	find . -iname "*.pyc" -delete
 	find . -type d -name "__pycache__" -delete
 

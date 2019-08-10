@@ -84,7 +84,7 @@ def main():
                 to_pdf(newfilepath, tmpdirname)
                 print(f'"{newfilename}" successfully converted!', file=sys.stdout)
 
-        except Exception: # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             traceback.print_exc()
             print(f'error processing "{filename}", skipping...', file=sys.stdout)
     print(os.linesep + "we're all done!" + os.linesep, file=sys.stdout)
