@@ -13,7 +13,7 @@ $ python setup.py sdist                 # create package in /dist
 
 from setuptools import setup
 
-VERSION = "3.0.1"
+VERSION = "3.1.0"
 
 with open("README.md") as f:
     readme = f.read()
