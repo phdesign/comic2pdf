@@ -7,6 +7,7 @@ import sys
 import zipfile
 import argparse
 import tempfile
+import ntpath
 import traceback
 import pkg_resources
 import patoolib
@@ -59,21 +60,28 @@ def parse_config():
 
 def main():
     config = parse_config()
+    # loop through all the file paths passed
     for filename in config.path:
         try:
+            # if it's a relative path, make absolute
             filepath = os.path.join(os.getcwd(), filename)
-            filename_noextn, extn = os.path.splitext(filename)
+            # get filename without extension, basename gets us the filename from path
+            filename_noextn, extn = os.path.splitext(ntpath.basename(filename))
+            # create output filename (pdf)
             newfilename = filename_noextn + ".pdf"
             newfilepath = os.path.join(config.outdir, newfilename)
 
+            # check if file has already been converted and whether we should skip
             if os.path.exists(newfilepath) and not config.allow_overwrite:
                 print(f'skipping existing file "{filename}"', file=sys.stdout)
                 continue
 
+            # make sure it's a recognised file type
             if extn not in EXTN_COMIC_ZIP + EXTN_COMIC_RAR:
                 print(f'skipping unrecognised file "{filename}"', file=sys.stdout)
                 continue
 
+            # create a temporary folder to extract the contents of the comic (images) to
             with tempfile.TemporaryDirectory() as tmpdirname:
                 print(f'processing file "{filename}"...', file=sys.stdout)
 
