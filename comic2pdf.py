@@ -12,6 +12,7 @@ import traceback
 import pkg_resources
 import patoolib
 from PIL import Image
+from natsort import natsorted
 
 PACKAGE_NAME = "comic2pdf"
 EXTN_COMIC_ZIP = (".cbz", ".zip")
@@ -33,7 +34,7 @@ def extract_cbz(filename, tmpdirname):
 
 
 def collect_images(path):
-    for item in os.listdir(path):
+    for item in natsorted(os.listdir(path)):
         itempath = os.path.join(path, item)
         _, extn = os.path.splitext(item.lower())
         if os.path.isdir(itempath):

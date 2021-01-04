@@ -32,6 +32,6 @@ setup(
     entry_points={"console_scripts": ["comic2pdf=comic2pdf:main"]},
     license="WTFPL",
     keywords=["comic", "pdf", "cbr", "cbz", "convert"],
-    install_requires=["patool", "pillow"],
+    install_requires=["patool", "pillow", "natsort"],
     zip_safe=True,
 )
