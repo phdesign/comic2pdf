@@ -33,13 +33,14 @@ def extract_cbz(filename, tmpdirname):
 
 
 def collect_images(path):
-    for item in os.listdir(path):
+    for item in sorted(os.listdir(path)):
         itempath = os.path.join(path, item)
         _, extn = os.path.splitext(item.lower())
         if os.path.isdir(itempath):
             yield from collect_images(itempath)
-        elif extn in (".jpg", ".jpeg"):
+        elif extn in (".jpg", ".jpeg", ".png"):
             img = Image.open(itempath)
+            if img.mode in ("RGBA", "P"): img = img.convert("RGB")
             img.save(itempath, dpi=(96, 96))
             yield img
 
@@ -47,6 +48,8 @@ def collect_images(path):
 def to_pdf(filename, tmpdirname):
     images = list(collect_images(tmpdirname))
     images[0].save(filename, "PDF", resolution=100.0, save_all=True, append_images=images[1:])
+    for img in images:
+        img.close()
 
 
 def parse_config():
