@@ -11,6 +11,7 @@ import ntpath
 import traceback
 import pkg_resources
 import patoolib
+import shutil
 from PIL import Image
 
 PACKAGE_NAME = "comic2pdf"
@@ -33,13 +34,14 @@ def extract_cbz(filename, tmpdirname):
 
 
 def collect_images(path):
-    for item in os.listdir(path):
+    for item in sorted(os.listdir(path)):
         itempath = os.path.join(path, item)
         _, extn = os.path.splitext(item.lower())
         if os.path.isdir(itempath):
             yield from collect_images(itempath)
-        elif extn in (".jpg", ".jpeg"):
+        elif extn in (".jpg", ".jpeg", ".png"):
             img = Image.open(itempath)
+            if img.mode in ("RGBA", "P"): img = img.convert("RGB")
             img.save(itempath, dpi=(96, 96))
             yield img
 
@@ -47,6 +49,8 @@ def collect_images(path):
 def to_pdf(filename, tmpdirname):
     images = list(collect_images(tmpdirname))
     images[0].save(filename, "PDF", resolution=100.0, save_all=True, append_images=images[1:])
+    for img in images:
+        img.close()
 
 
 def parse_config():
@@ -77,18 +81,20 @@ def main():
                 continue
 
             # make sure it's a recognised file type
-            if extn not in EXTN_COMIC_ZIP + EXTN_COMIC_RAR:
+            if extn not in EXTN_COMIC_ZIP + EXTN_COMIC_RAR and not os.path.isdir(filename):
                 print(f'skipping unrecognised file "{filename}"', file=sys.stdout)
                 continue
 
             # create a temporary folder to extract the contents of the comic (images) to
             with tempfile.TemporaryDirectory() as tmpdirname:
-                print(f'processing file "{filename}"...', file=sys.stdout)
+                print(f'processing "{filename}"...', file=sys.stdout)
 
                 if extn in EXTN_COMIC_ZIP:
                     extract_cbz(filepath, tmpdirname)
                 elif extn in EXTN_COMIC_RAR:
                     extract_cbr(filepath, tmpdirname)
+                else:
+                    [shutil.copy(os.path.join(filepath, f), os.path.join(tmpdirname, f)) for f in os.listdir(filepath) if f.endswith((".jpg", ".jpeg", ".png"))]
                 to_pdf(newfilepath, tmpdirname)
                 print(f'"{newfilename}" successfully converted!', file=sys.stdout)
 
