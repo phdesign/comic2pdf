@@ -11,6 +11,7 @@ import ntpath
 import traceback
 import pkg_resources
 import patoolib
+import shutil
 from PIL import Image
 
 PACKAGE_NAME = "comic2pdf"
@@ -80,18 +81,20 @@ def main():
                 continue
 
             # make sure it's a recognised file type
-            if extn not in EXTN_COMIC_ZIP + EXTN_COMIC_RAR:
+            if extn not in EXTN_COMIC_ZIP + EXTN_COMIC_RAR and not os.path.isdir(filename):
                 print(f'skipping unrecognised file "{filename}"', file=sys.stdout)
                 continue
 
             # create a temporary folder to extract the contents of the comic (images) to
             with tempfile.TemporaryDirectory() as tmpdirname:
-                print(f'processing file "{filename}"...', file=sys.stdout)
+                print(f'processing "{filename}"...', file=sys.stdout)
 
                 if extn in EXTN_COMIC_ZIP:
                     extract_cbz(filepath, tmpdirname)
                 elif extn in EXTN_COMIC_RAR:
                     extract_cbr(filepath, tmpdirname)
+                else:
+                    [shutil.copy(os.path.join(filepath, f), os.path.join(tmpdirname, f)) for f in os.listdir(filepath) if f.endswith(".jpg")]
                 to_pdf(newfilepath, tmpdirname)
                 print(f'"{newfilename}" successfully converted!', file=sys.stdout)
 
