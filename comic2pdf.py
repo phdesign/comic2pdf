@@ -94,7 +94,7 @@ def main():
                 elif extn in EXTN_COMIC_RAR:
                     extract_cbr(filepath, tmpdirname)
                 else:
-                    [shutil.copy(os.path.join(filepath, f), os.path.join(tmpdirname, f)) for f in os.listdir(filepath) if f.endswith(".jpg")]
+                    [shutil.copy(os.path.join(filepath, f), os.path.join(tmpdirname, f)) for f in os.listdir(filepath) if f.endswith((".jpg", ".jpeg", ".png"))]
                 to_pdf(newfilepath, tmpdirname)
                 print(f'"{newfilename}" successfully converted!', file=sys.stdout)
 
